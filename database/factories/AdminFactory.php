@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,7 +27,7 @@ class AdminFactory extends Factory
             "password" => static::$password ??= Hash::make('password'),
             "is_super_admin" => fake()->boolean(),
             "is_active" => fake()->boolean(),
-            "admin_id" => null,
+            "admin_id" => Admin::where('is_super_admin', true)->get()->random(),
         ];
     }
 }

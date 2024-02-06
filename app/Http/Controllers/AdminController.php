@@ -10,53 +10,31 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Admin::class, 'admin_user');
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $admins = Admin::paginate();
+        $admins = Admin::with('createdBy')->paginate($request->get('per_page') ?: 10);
 
         return [
             "data" => $admins,
             "message" => "Successfully fetched paginated admins",
             "success" => true,
         ];
-
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAdminRequest $request)
-    {
-        $super_admin = Auth::user();
-
-        if (!$super_admin->is_super_admin) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Unauthorized',
-                'success' => false,
-            ], 403);
-        }
-
-        $validated = $request->validated();
-
-        $admin = $super_admin->createdAdmins()->create($validated);
-
-        return response()->json([
-            'data' => $admin,
-            'message' => 'Successfully created an admin user.',
-            'success' => true
-        ], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Admin $admin)
+    public function show(Admin $admin_user)
     {
-        if (!$admin) {
+        if (!$admin_user) {
             return response()->json(
                 [
                     'data' => null,
@@ -68,8 +46,10 @@ class AdminController extends Controller
             );
         }
 
+        $admin_user['created_by'] = $admin_user->createdBy;
+
         return response()->json([
-            'data' => $admin,
+            'data' => $admin_user,
             'message' => 'Successfully retrieve data',
             'success' => true
         ], 200);
@@ -77,13 +57,28 @@ class AdminController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreAdminRequest $request)
+    {
+        $super_admin = Auth::user();
+        $validated = $request->validated();
+        $admin = $super_admin->createdAdmins()->create($validated);
+
+        $admin['created_by'] = $admin->createdBy;
+
+        return response()->json([
+            'data' => $admin,
+            'message' => 'Successfully created an admin user.',
+            'success' => true
+        ], 200);
+    }
+    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAdminRequest $request, Admin $admin)
+    public function update(UpdateAdminRequest $request, Admin $admin_user)
     {
-        $tempAdmin = $admin;
-
-        if (!$tempAdmin) {
+        if (!$admin_user) {
             return response()->json([
                 'data' => null,
                 'message' => 'Admin user not found.',
@@ -93,10 +88,10 @@ class AdminController extends Controller
 
         $validated = $request->validated();
 
-        $admin->update($validated);
+        $admin_user->update($validated);
 
         return response()->json([
-            'data' => $admin,
+            'data' => $admin_user,
             'message' => 'Successfully updated an admin user.',
             'success' => true,
         ], 200);
@@ -105,17 +100,9 @@ class AdminController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Admin $admin)
+    public function destroy(Admin $admin_user)
     {
-        if (!Auth::user()->is_super_admin) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Unauthorized',
-                'success' => false,
-            ], 403);
-        }
-
-        $tempAdmin = $admin;
+        $tempAdmin = $admin_user;
 
         if (!$tempAdmin) {
             return response()->json([
@@ -125,7 +112,7 @@ class AdminController extends Controller
             ], 404);
         }
 
-        $admin->delete();
+        $admin_user->delete();
 
         return response()->json([
             'data' => $tempAdmin,
