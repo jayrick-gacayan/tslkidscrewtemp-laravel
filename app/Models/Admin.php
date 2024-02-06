@@ -37,8 +37,4 @@ class Admin extends Authenticatable
         return $this->belongsTo(Admin::class, 'admin_id', 'id');
     }
 
-    public function isSuperAdmin()
-    {
-        return $this->is_super_admin;
-    }
 }
