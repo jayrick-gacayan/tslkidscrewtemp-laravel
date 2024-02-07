@@ -2,11 +2,10 @@
 
 namespace App\Http\Requests;
 
-
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreAdminRequest extends FormRequest
+class UpdateLocationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,16 +23,14 @@ class StoreAdminRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => "required|max:150",
-            "email" => [
-                "required",
-                "email",
-                "max:120",
-                Rule::unique("admins", 'email')
+            'name' => [
+                'sometimes',
+                'required',
+                'max:200',
+                Rule::exists('locations', 'name')
             ],
-            "password" => "required|max:200",
-            "is_super_admin" => "sometimes|boolean",
-            "is_active" => "sometimes|boolean",
+            'address' => 'sometimes|required',
+            'admin_id' => 'sometimes|required|integer'
         ];
     }
 }

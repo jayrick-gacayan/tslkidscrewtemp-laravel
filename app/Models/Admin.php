@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,13 +30,18 @@ class Admin extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function createdAdmins()
+    public function createdAdmins(): HasMany
     {
-        return $this->hasMany(Admin::class, 'admin_id', 'id');
+        return $this->hasMany(Admin::class);
     }
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(Admin::class, 'admin_id', 'id');
+        return $this->belongsTo(Admin::class);
+    }
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
     }
 
 }

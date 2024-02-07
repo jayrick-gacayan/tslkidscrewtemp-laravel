@@ -12,7 +12,7 @@ class AdminController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Admin::class, 'admin_user');
+        $this->authorizeResource(Admin::class, 'admin');
     }
 
     /**
@@ -20,21 +20,22 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
-        $admins = Admin::with('createdBy')->paginate($request->get('per_page') ?: 10);
+        $admins = Admin::with('createdBy')
+            ->paginate($request->get('per_page') ?: 10);
 
-        return [
+        return response()->json([
             "data" => $admins,
             "message" => "Successfully fetched paginated admins",
             "success" => true,
-        ];
+        ], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Admin $admin_user)
+    public function show(Admin $admin)
     {
-        if (!$admin_user) {
+        if (!$admin) {
             return response()->json(
                 [
                     'data' => null,
@@ -42,14 +43,14 @@ class AdminController extends Controller
                     'success' => false,
                 ]
                 ,
-                400
+                404
             );
         }
 
-        $admin_user['created_by'] = $admin_user->createdBy;
+        $admin['created_by'] = $admin->createdBy;
 
         return response()->json([
-            'data' => $admin_user,
+            'data' => $admin,
             'message' => 'Successfully retrieve data',
             'success' => true
         ], 200);
@@ -76,9 +77,9 @@ class AdminController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAdminRequest $request, Admin $admin_user)
+    public function update(UpdateAdminRequest $request, Admin $admin)
     {
-        if (!$admin_user) {
+        if (!$admin) {
             return response()->json([
                 'data' => null,
                 'message' => 'Admin user not found.',
@@ -88,10 +89,10 @@ class AdminController extends Controller
 
         $validated = $request->validated();
 
-        $admin_user->update($validated);
+        $admin->update($validated);
 
         return response()->json([
-            'data' => $admin_user,
+            'data' => $admin,
             'message' => 'Successfully updated an admin user.',
             'success' => true,
         ], 200);
@@ -100,9 +101,9 @@ class AdminController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Admin $admin_user)
+    public function destroy(Admin $admin)
     {
-        $tempAdmin = $admin_user;
+        $tempAdmin = $admin;
 
         if (!$tempAdmin) {
             return response()->json([
@@ -112,7 +113,7 @@ class AdminController extends Controller
             ], 404);
         }
 
-        $admin_user->delete();
+        $admin->delete();
 
         return response()->json([
             'data' => $tempAdmin,

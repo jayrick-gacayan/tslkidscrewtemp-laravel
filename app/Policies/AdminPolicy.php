@@ -10,7 +10,7 @@ class AdminPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(Admin $admin): bool
+    public function viewAny(Admin $user): bool
     {
         return true;
     }
@@ -18,7 +18,7 @@ class AdminPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(Admin $admin, Admin $admin_user): bool
+    public function view(Admin $user, Admin $admin): bool
     {
         return true;
     }
@@ -26,43 +26,42 @@ class AdminPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(Admin $admin): bool
+    public function create(Admin $user): bool
     {
-        return $admin->is_super_admin;
+        return $user->is_super_admin;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(Admin $admin, Admin $admin_user): bool
+    public function update(Admin $user, Admin $admin): bool
     {
-        //
-        return $admin->is_super_admin ||
-            $admin->id === $admin_user->id;
+        return $user->is_super_admin || $user->id === $admin->id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(Admin $admin, Admin $admin_user): bool
+    public function delete(Admin $user, Admin $admin): bool
     {
-        //
-        return $admin->is_super_admin;
+        return $user->is_super_admin;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(Admin $admin, Admin $admin_user): bool
+    public function restore(Admin $user, Admin $admin): bool
     {
         //
+        return true;
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(Admin $admin, Admin $admin_user): bool
+    public function forceDelete(Admin $user, Admin $admin): bool
     {
         //
+        return true;
     }
 }

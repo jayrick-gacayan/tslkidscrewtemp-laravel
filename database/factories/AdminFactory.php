@@ -27,7 +27,9 @@ class AdminFactory extends Factory
             "password" => static::$password ??= Hash::make('password'),
             "is_super_admin" => fake()->boolean(),
             "is_active" => fake()->boolean(),
-            "admin_id" => Admin::where('is_super_admin', true)->get()->random(),
+            "admin_id" => Admin::where('is_super_admin', true)
+                ->inRandomOrder()
+                ->first()
         ];
     }
 }

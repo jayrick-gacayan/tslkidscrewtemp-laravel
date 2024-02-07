@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,12 +14,23 @@ use App\Http\Controllers\AdminController;
 |
 */
 
-Route::prefix("admins")->group(function () {
-    Route::post("login", [AdminAuthController::class, "admin_login"])->middleware('guest:api-admins');
+Route::post("/admins/login", [AdminAuthController::class, "admin_login"])
+    ->middleware('guest:api-admins');
 
-    Route::middleware('auth:api-admins')->group(function () {
-        Route::post('logout', [AdminAuthController::class, 'admin_logout']);
-        Route::apiResource("admin-users", AdminController::class);
+Route::middleware('auth:api-admins')
+    ->group(function () {
+        Route::post('/admins/logout', [AdminAuthController::class, 'admin_logout']);
+        Route::apiResource("admins", AdminController::class);
     });
-});
 
+Route::prefix('locations')
+    ->group(function () {
+        Route::get('/', [LocationController::class, 'index']);
+        Route::get('/:location', [LocationController::class, 'show']);
+
+        Route::middleware('auth:api-admins')->group(function () {
+            Route::post('/', [LocationController::class, 'store']);
+            Route::delete('/:location', [LocationController::class, 'destroy']);
+            Route::put('/:location', [LocationController::class, 'update']);
+        });
+    });
